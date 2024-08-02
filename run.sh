@@ -1,53 +1,75 @@
-#!/usr/bin/sh
+#!/bin/bash
 
+# Function to handle clean exit on Ctrl+C
+ctrl_c() {
+    echo -e "\nStopping Anonsurf..."
+    anonsurf stop
+    exit 1
+}
+trap ctrl_c INT
+
+# Function to start Anonsurf and manage proxy rotation
 startAnonsurf() {
-    read -p "Enter time between proxy switch in seconds: " proxyTime 
-    echo "Time set to: ${proxyTime} seconds"  
-   
-    anonsurf start 
-    while :
-    do
-        sleep $proxyTime 
-        anonsurf change    
-        
-        ctrl_c() {
-            echo "\n"
-            echo "Stopping Anonsurf..."
-            anonsurf stop
-            exit 1
-        }
-        trap ctrl_c 2
+    read -rp "Enter time between proxy switch in seconds: " proxyTime
+    echo "Time set to: ${proxyTime} seconds"
+
+    if ! command -v anonsurf &> /dev/null; then
+        echo "Anonsurf is not installed. Please install it first."
+        exit 1
+    fi
+
+    anonsurf start
+
+    while true; do
+        sleep "$proxyTime"
+        anonsurf change
     done
 }
 
-# SCRIPT START 
-if [[ $EUID -ne 0 ]]; 
-then
-    echo "$0 is not running as root. Try using sudo"
+# Check if the script is run as root
+if [[ $EUID -ne 0 ]]; then
+    echo "$0 is not running as root. Try using sudo."
     exit 2
 fi
 
-read -p "Do you have anonsurf installed? y/n: " choice
+# Prompt for Anonsurf installation
+read -rp "Do you have Anonsurf installed? (y/n): " choice
 
-if [[ $choice == "y" ]] || [[ $choice == "yes" ]];
-then
-    apt update -y && apt full-upgrade -y && apt autoremove -y && apt install git -y && apt install tor -y
-    git clone https://github.com/Und3rf10w/kali-anonsurf.git
-    cd kali-anonsurf
-    ./installer.sh
-    read -p "Do you wish to start Anonsurf proxy rotate? y/n: " choice2
-    if [[ $choice2 == "y" ]] || [[ $choice2 == "yes" ]];
-    then
+case "$choice" in
+    [Yy]*)
+        echo "Updating system and installing dependencies..."
+        apt update -y && apt full-upgrade -y && apt autoremove -y && apt install -y git tor
+
+        if [[ ! -d "kali-anonsurf" ]]; then
+            echo "Cloning Anonsurf repository..."
+            git clone https://github.com/Und3rf10w/kali-anonsurf.git
+        fi
+
+        cd kali-anonsurf || { echo "Failed to navigate to kali-anonsurf directory."; exit 1; }
+
+        echo "Running Anonsurf installer..."
+        ./installer.sh || { echo "Anonsurf installation failed."; exit 1; }
+
+        read -rp "Do you wish to start Anonsurf proxy rotation? (y/n): " choice2
+        case "$choice2" in
+            [Yy]*)
+                startAnonsurf
+                ;;
+            [Nn]*)
+                echo "Exiting script."
+                exit 0
+                ;;
+            *)
+                echo "Invalid option selected, stopping script..."
+                exit 1
+                ;;
+        esac
+        ;;
+    [Nn]*)
         startAnonsurf
-    elif [[ $choice2 == "n" ]] || [[ $choice2 == "no" ]];
-    then
+        ;;
+    *)
+        echo "Invalid option selected, stopping script..."
         exit 1
-    else
-        exit 1
-    fi
-elif [[ $choice == "n" ]] || [[ $choice == "no" ]];
-then 
-   startAnonsurf 
-else
-    echo "No option selected, stopping script..."
-fi
+        ;;
+esac
