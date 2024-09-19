@@ -9,7 +9,9 @@ I will be updating this scripts functionality in the future to be used on window
 `sudo apt install git`
 `cd /opt`
 `git clone https://github.com/Und3rf10w/kali-anonsurf.git`
-`cd /kali-anonsurf`
+`cd kali-anonsurf`
 `sudo ./installer.sh`
 `cd ..`
-`git clone `
+`git clone https://github.com/Quantum-Solace/Tor-Proxy-Rotator.git`
+`cd Tor-Proxy-Rotator`
+`sudo ./run.sh`
