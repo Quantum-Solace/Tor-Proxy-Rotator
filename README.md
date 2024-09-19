@@ -6,12 +6,12 @@ I will be updating this scripts functionality in the future to be used on window
 # Instructions (Debian & Ubuntu)
 - `sudo apt update && sudo apt full-upgrade -y`
 - `sudo apt install curl`
-`sudo apt install git`
-`cd /opt`
-`git clone https://github.com/Und3rf10w/kali-anonsurf.git`
-`cd kali-anonsurf`
-`sudo ./installer.sh`
-`cd ..`
-`git clone https://github.com/Quantum-Solace/Tor-Proxy-Rotator.git`
-`cd Tor-Proxy-Rotator`
-`sudo ./run.sh`
+- `sudo apt install git`
+- `cd /opt`
+- `git clone https://github.com/Und3rf10w/kali-anonsurf.git`
+- `cd kali-anonsurf`
+- `sudo ./installer.sh`
+- `cd ..`
+- `git clone https://github.com/Quantum-Solace/Tor-Proxy-Rotator.git`
+- `cd Tor-Proxy-Rotator`
+- `sudo ./run.sh`
